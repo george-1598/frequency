@@ -44,13 +44,13 @@ export default function Results({ state, act }: { state: RoomState; act: Act }) 
         </ol>
       </div>
       {isHost ? (
-        <button className="btn btn-primary btn-big" onClick={() => act('play_again')}>
+        <button className="btn btn-primary btn-big" onClick={() => act('ti_play_again')}>
           Play again
         </button>
       ) : (
         <p className="waiting">The host can start another game.</p>
       )}
-      <button className="link" onClick={() => act('leave_room').then(goHome)}>
+      <button className="link" onClick={() => act('ti_leave_room').then(goHome)}>
         Leave the room
       </button>
     </section>

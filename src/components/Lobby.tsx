@@ -49,7 +49,7 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
   };
   const addCard = async (e: FormEvent) => {
     e.preventDefault();
-    await run('add_card', { p_left: left, p_right: right });
+    await run('ti_add_card', { p_left: left, p_right: right });
     setLeft('');
     setRight('');
   };
@@ -91,7 +91,7 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
           <span>Rounds as psychic, each</span>
           <div className="seg">
             {[1, 2, 3].map((n) => (
-              <button key={n} aria-pressed={state.rounds_per_player === n} disabled={!isHost} onClick={() => run('update_settings', { p_rounds_per_player: n, p_precision: state.precision })}>
+              <button key={n} aria-pressed={state.rounds_per_player === n} disabled={!isHost} onClick={() => run('ti_update_settings', { p_rounds_per_player: n, p_precision: state.precision })}>
                 {n}
               </button>
             ))}
@@ -101,7 +101,7 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
           <span>Target size</span>
           <div className="seg">
             {PRECISION.map((p) => (
-              <button key={p.v} aria-pressed={state.precision === p.v} disabled={!isHost} onClick={() => run('update_settings', { p_rounds_per_player: state.rounds_per_player, p_precision: p.v })}>
+              <button key={p.v} aria-pressed={state.precision === p.v} disabled={!isHost} onClick={() => run('ti_update_settings', { p_rounds_per_player: state.rounds_per_player, p_precision: p.v })}>
                 {p.label}
               </button>
             ))}
@@ -133,7 +133,7 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
                   {c.left} ⟷ {c.right}
                 </span>
                 {(c.mine || isHost) && (
-                  <button className="link" onClick={() => run('remove_card', { p_id: c.id })} aria-label="Remove">
+                  <button className="link" onClick={() => run('ti_remove_card', { p_id: c.id })} aria-label="Remove">
                     ✕
                   </button>
                 )}
@@ -145,13 +145,13 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
 
       {error && <p className="error">{error}</p>}
       {isHost ? (
-        <button className="btn btn-primary btn-big" onClick={() => run('start_game')} disabled={state.players.length < 2}>
+        <button className="btn btn-primary btn-big" onClick={() => run('ti_start_game')} disabled={state.players.length < 2}>
           Start the game
         </button>
       ) : (
         <p className="waiting">Waiting for the host to start…</p>
       )}
-      <button className="link" onClick={() => run('leave_room').then(goHome)}>
+      <button className="link" onClick={() => run('ti_leave_room').then(goHome)}>
         Leave the room
       </button>
     </section>

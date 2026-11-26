@@ -19,7 +19,7 @@ export default function Home({ ready }: { ready: boolean }) {
     setError(null);
     saveName(name);
     try {
-      const room = kind === 'create' ? await call<string>('create_room', { p_name: name }) : await call<string>('join_room', { p_code: code, p_name: name });
+      const room = kind === 'create' ? await call<string>('ti_create_room', { p_name: name }) : await call<string>('ti_join_room', { p_code: code, p_name: name });
       goToRoom(room);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');

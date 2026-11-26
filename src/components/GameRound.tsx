@@ -50,7 +50,7 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
             </p>
             <Dial value={50} showMain={false} left={r.left} right={r.right} label="The scale for this round" />
             {isHost && psychic && !psychic.online && (
-              <button className="link" onClick={() => run('skip_round')}>
+              <button className="link" onClick={() => run('ti_skip_round')}>
                 {psychic.name} seems to be away: skip this round
               </button>
             )}
@@ -65,7 +65,7 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
               <Dial value={r.target ?? 50} showMain={false} target={r.target != null ? { center: r.target, tol } : null} left={r.left} right={r.right} label="The secret spot" />
               <p className="muted center-text">Only you can see the target. Waiting for {waitingFor.map((p) => p.name).join(', ') || 'everyone'}…</p>
               <LockedList guessers={guessers} locked={lockedIds} />
-              <button className="link" onClick={() => run('force_reveal')}>
+              <button className="link" onClick={() => run('ti_force_reveal')}>
                 Reveal now
               </button>
             </div>
@@ -75,7 +75,7 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
               <p className="locked">🔒 Locked in. Waiting for {waitingFor.map((p) => p.name).join(', ') || 'the reveal'}…</p>
               <LockedList guessers={guessers} locked={lockedIds} />
               {isHost && waitingFor.length > 0 && (
-                <button className="link" onClick={() => run('force_reveal')}>
+                <button className="link" onClick={() => run('ti_force_reveal')}>
                   Reveal now
                 </button>
               )}
@@ -101,7 +101,7 @@ function PsychicClue({ state, run }: { state: RoomState; run: (fn: string, args?
   const send = async (e: FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    await run('give_clue', { p_clue: clue });
+    await run('ti_give_clue', { p_clue: clue });
     setBusy(false);
   };
   return (
@@ -114,7 +114,7 @@ function PsychicClue({ state, run }: { state: RoomState; run: (fn: string, args?
           {busy ? 'Sending…' : 'Send clue'}
         </button>
       </form>
-      <button className="link" onClick={() => run('skip_card')} disabled={r.skips >= 3}>
+      <button className="link" onClick={() => run('ti_skip_card')} disabled={r.skips >= 3}>
         {r.skips >= 3 ? 'No more redraws this round' : `🔄 Draw another card (${3 - r.skips} left)`}
       </button>
     </div>
@@ -126,7 +126,7 @@ function GuessPanel({ left, right, run }: { left: string; right: string; run: (f
   const [busy, setBusy] = useState(false);
   const lock = async () => {
     setBusy(true);
-    await run('lock_guess', { p_value: value });
+    await run('ti_lock_guess', { p_value: value });
     setBusy(false);
   };
   return (
@@ -215,7 +215,7 @@ function Reveal({ state, run }: { state: RoomState; run: (fn: string, args?: Rec
           )}
         </ul>
       </div>
-      <button className="btn btn-primary btn-big" onClick={() => run('next_round')}>
+      <button className="btn btn-primary btn-big" onClick={() => run('ti_next_round')}>
         {last ? 'See the final scores 🏆' : 'Next round →'}
       </button>
     </>

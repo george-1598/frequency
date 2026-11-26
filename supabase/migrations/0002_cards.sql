@@ -1,5 +1,5 @@
 -- The built-in deck of scales (rooms can add their own too).
-insert into public.cards (left_label, right_label) values
+insert into public.ti_cards (left_label, right_label) values
   ('Cold', 'Hot'),
   ('Quiet', 'Loud'),
   ('Cheap', 'Expensive'),

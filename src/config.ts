@@ -1,4 +1,5 @@
-// Supabase project for Tuned In. Both values are public by design: the anon key
-// can only do what the database functions allow (see supabase/migrations).
-export const SUPABASE_URL = 'https://REPLACE_WITH_PROJECT_REF.supabase.co';
-export const SUPABASE_ANON_KEY = 'REPLACE_WITH_ANON_KEY';
+// Supabase project for Tuned In (shared with the guess-who game; every Tuned In
+// table and function is prefixed `ti_`). Both values are public by design: the
+// key can only do what the database functions allow (see supabase/migrations).
+export const SUPABASE_URL = 'https://naychdhodwhoppnvdytp.supabase.co';
+export const SUPABASE_ANON_KEY = 'sb_publishable_IiRfDMy5uApCazXrgJBxFg_6-dSasf6';

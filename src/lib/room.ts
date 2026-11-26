@@ -55,7 +55,7 @@ export function useRoom(code: string, userId: string | null) {
     }
     inflight.current = true;
     try {
-      setState(await call<RoomState>('get_room_state', { p_code: code }));
+      setState(await call<RoomState>('ti_get_room_state', { p_code: code }));
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Connection problem');
@@ -73,11 +73,11 @@ export function useRoom(code: string, userId: string | null) {
     void refresh();
     const channel = supabase
       .channel(`room-${code}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'room_ticks', filter: `room=eq.${code}` }, () => void refresh())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ti_room_ticks', filter: `room=eq.${code}` }, () => void refresh())
       .subscribe();
     const poll = window.setInterval(() => void refresh(), 5000);
-    const beat = window.setInterval(() => void call('heartbeat', { p_code: code }).catch(() => undefined), 20000);
-    void call('heartbeat', { p_code: code }).catch(() => undefined);
+    const beat = window.setInterval(() => void call('ti_heartbeat', { p_code: code }).catch(() => undefined), 20000);
+    void call('ti_heartbeat', { p_code: code }).catch(() => undefined);
     const onVisible = () => document.visibilityState === 'visible' && void refresh();
     document.addEventListener('visibilitychange', onVisible);
     return () => {

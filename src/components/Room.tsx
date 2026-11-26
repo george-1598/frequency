@@ -42,7 +42,7 @@ function JoinPrompt({ code, onJoined, started }: { code: string; onJoined: () =>
     setError(null);
     saveName(name);
     try {
-      await call('join_room', { p_code: code, p_name: name });
+      await call('ti_join_room', { p_code: code, p_name: name });
       onJoined();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not join');
