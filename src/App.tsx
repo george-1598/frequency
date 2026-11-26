@@ -1,5 +1,7 @@
 import { useSession } from './lib/session';
-import { goHome, useIsAdminRoute, useRoomCode } from './lib/route';
+import { goHome, useAdminRoute, useRoomCode } from './lib/route';
+import { useEffect } from 'react';
+import { loadSuggestions } from './lib/suggestions';
 import Admin from './components/Admin';
 import Home from './components/Home';
 import Room from './components/Room';
@@ -9,7 +11,10 @@ import Logo from './components/Logo';
 export default function App() {
   const { userId, error } = useSession();
   const code = useRoomCode();
-  const adminRoute = useIsAdminRoute();
+  const adminRoute = useAdminRoute();
+  useEffect(() => {
+    if (userId) void loadSuggestions();
+  }, [userId]);
   const notConfigured = SUPABASE_URL.includes('REPLACE_WITH');
   return (
     <div className="app">
@@ -23,7 +28,7 @@ export default function App() {
       <main>
         {notConfigured && <p className="error banner">The game isn’t connected to its database yet.</p>}
         {error && <p className="error banner">Couldn’t connect: {error}</p>}
-        {adminRoute ? <Admin userId={userId} /> : code ? <Room code={code} userId={userId} /> : <Home ready={Boolean(userId)} />}
+        {adminRoute ? <Admin userId={userId} route={adminRoute} /> : code ? <Room code={code} userId={userId} /> : <Home ready={Boolean(userId)} />}
       </main>
     </div>
   );

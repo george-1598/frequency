@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { seatColor, type RoomState } from '../lib/room';
 import Dial from './Dial';
 import { Avatar } from './Lobby';
-import { ALL_SUGGESTIONS } from '../lib/examples';
+import { randomSuggestion } from '../lib/suggestions';
 import ShareButton from './ShareButton';
 
 type Act = (fn: string, args?: Record<string, unknown>) => Promise<void>;
@@ -123,7 +123,7 @@ const PRECISION = [
 function PsychicClue({ state, run }: { state: RoomState; run: (fn: string, args?: Record<string, unknown>) => Promise<void> }) {
   const r = state.current!;
   // A fresh random scale and clue every time the editor opens (refreshing gives a new one); all editable.
-  const [start] = useState(() => ALL_SUGGESTIONS[Math.floor(Math.random() * ALL_SUGGESTIONS.length)]);
+  const [start] = useState(() => randomSuggestion());
   const [left, setLeft] = useState(start.left);
   const [right, setRight] = useState(start.right);
   const [clue, setClue] = useState(start.clue);
@@ -131,8 +131,7 @@ function PsychicClue({ state, run }: { state: RoomState; run: (fn: string, args?
   const [tol, setTol] = useState(4); // Balanced
   const [busy, setBusy] = useState(false);
   const suggest = () => {
-    const others = ALL_SUGGESTIONS.filter((e) => e.clue !== clue);
-    const e = others[Math.floor(Math.random() * others.length)];
+    const e = randomSuggestion(clue);
     setLeft(e.left);
     setRight(e.right);
     setClue(e.clue);

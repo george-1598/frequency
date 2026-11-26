@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { call } from '../lib/supabase';
-import { goHome } from '../lib/route';
+import { goHome, openAdmin, type AdminRoute } from '../lib/route';
+import AdminStats from './AdminStats';
+import AdminScales from './AdminScales';
+import AdminWatch from './AdminWatch';
 import { Avatar } from './Lobby';
 
 interface AdminPlayer {
@@ -43,14 +46,53 @@ const ago = (iso: string) => {
 const PHASE: Record<string, string> = { clue: 'creator is setting up', guessing: 'guessing', reveal: 'reveal' };
 
 /** #/admin: every room, who's in it, and tools to tidy up. Password-protected. */
-export default function Admin({ userId }: { userId: string | null }) {
+export default function Admin({ userId, route }: { userId: string | null; route: AdminRoute }) {
   const [admin, setAdmin] = useState<boolean | null>(null);
   useEffect(() => {
     if (!userId) return;
     call<boolean>('ti_is_admin').then(setAdmin, () => setAdmin(false));
   }, [userId]);
   if (admin === null) return <p className="loading">Checking…</p>;
-  return admin ? <Dashboard onLock={() => setAdmin(false)} /> : <Unlock onUnlocked={() => setAdmin(true)} />;
+  if (!admin) return <Unlock onUnlocked={() => setAdmin(true)} />;
+  if ('watch' in route) return <AdminWatch code={route.watch} />;
+  return <AdminShell view={route.view} onLock={() => setAdmin(false)} />;
+}
+
+function AdminShell({ view, onLock }: { view: 'rooms' | 'stats' | 'scales'; onLock: () => void }) {
+  const [pending, setPending] = useState(0);
+  const countPending = useCallback(() => {
+    call<{ pending: unknown[] }>('ti_admin_deck')
+      .then((d) => setPending(d.pending.length))
+      .catch(() => undefined);
+  }, []);
+  useEffect(countPending, [countPending, view]);
+  return (
+    <section className="stack admin">
+      <div className="admin-head">
+        <h2>Admin</h2>
+        <button
+          className="btn btn-small"
+          onClick={async () => {
+            await call('ti_admin_lock').catch(() => undefined);
+            onLock();
+          }}
+        >
+          Lock
+        </button>
+      </div>
+      <div className="seg admin-tabs" role="tablist">
+        {(['rooms', 'stats', 'scales'] as const).map((v) => (
+          <button key={v} role="tab" aria-pressed={view === v} onClick={() => openAdmin(v)}>
+            {v === 'rooms' ? 'Rooms' : v === 'stats' ? 'History' : 'Scales'}
+            {v === 'scales' && pending > 0 && <span className="tab-badge">{pending}</span>}
+          </button>
+        ))}
+      </div>
+      {view === 'rooms' && <Dashboard />}
+      {view === 'stats' && <AdminStats />}
+      {view === 'scales' && <AdminScales onChanged={countPending} />}
+    </section>
+  );
 }
 
 function Unlock({ onUnlocked }: { onUnlocked: () => void }) {
@@ -89,7 +131,7 @@ function Unlock({ onUnlocked }: { onUnlocked: () => void }) {
 
 type Filter = 'all' | 'active' | 'idle' | 'finished';
 
-function Dashboard({ onLock }: { onLock: () => void }) {
+function Dashboard() {
   const [data, setData] = useState<Overview | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -130,20 +172,7 @@ function Dashboard({ onLock }: { onLock: () => void }) {
   const idleCount = data.rooms.filter((r) => Date.now() - new Date(r.last_active).getTime() > hours * 3600 * 1000).length;
 
   return (
-    <section className="stack admin">
-      <div className="admin-head">
-        <h2>Admin</h2>
-        <button
-          className="btn btn-small"
-          onClick={async () => {
-            await call('ti_admin_lock').catch(() => undefined);
-            onLock();
-          }}
-        >
-          Lock
-        </button>
-      </div>
-
+    <>
       <div className="admin-stats">
         <Stat n={data.online} label="online now" />
         <Stat n={data.active_rooms} label="active rooms" />
@@ -206,11 +235,11 @@ function Dashboard({ onLock }: { onLock: () => void }) {
       ))}
 
       <PasswordChange run={run} />
-    </section>
+    </>
   );
 }
 
-function Stat({ n, label }: { n: number; label: string }) {
+export function Stat({ n, label }: { n: number | string; label: string }) {
   return (
     <div className="admin-stat">
       <strong>{n}</strong>
@@ -292,6 +321,11 @@ function RoomCard({ room: r, active, run }: { room: AdminRoom; active: boolean; 
         </div>
       ) : (
         <div className="admin-actions">
+          {r.status !== 'finished' && (
+            <button className="btn btn-small" onClick={() => openAdmin({ watch: r.code })}>
+              Watch
+            </button>
+          )}
           {r.status === 'playing' && (
             <button className="btn btn-small" onClick={() => setConfirm('end')}>
               End game
