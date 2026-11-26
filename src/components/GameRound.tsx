@@ -115,9 +115,9 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
 }
 
 const PRECISION = [
-  { tol: 7, label: 'Generous (wide target)' },
-  { tol: 4, label: 'Normal' },
-  { tol: 3, label: 'Tight (needs a good guess)' },
+  { tol: 7, label: 'Generous' },
+  { tol: 4, label: 'Balanced' },
+  { tol: 3, label: 'Precise' },
 ];
 
 /** The round's creator sets it up, like the advent calendar's editor. */
@@ -132,7 +132,7 @@ function PsychicClue({ state, run }: { state: RoomState; run: (fn: string, args?
   const [right, setRight] = useState(start.right);
   const [clue, setClue] = useState(start.clue);
   const [spot, setSpot] = useState(r.target ?? 50);
-  const [tol, setTol] = useState(3);
+  const [tol, setTol] = useState(4); // Balanced
   const [busy, setBusy] = useState(false);
   const suggest = () => {
     const others = ALL_SUGGESTIONS.filter((e) => e.clue !== clue);
