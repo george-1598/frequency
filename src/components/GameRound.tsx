@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { seatColor, type RoomState } from '../lib/room';
 import Dial from './Dial';
 import { Avatar } from './Lobby';
-import { ALL_SUGGESTIONS, clueFor } from '../lib/examples';
+import { ALL_SUGGESTIONS } from '../lib/examples';
 import ShareButton from './ShareButton';
 
 type Act = (fn: string, args?: Record<string, unknown>) => Promise<void>;
@@ -123,11 +123,8 @@ const PRECISION = [
 /** The round's creator sets it up, like the advent calendar's editor. */
 function PsychicClue({ state, run }: { state: RoomState; run: (fn: string, args?: Record<string, unknown>) => Promise<void> }) {
   const r = state.current!;
-  // Start from the dealt card with its clue (or a random suggestion), all editable.
-  const [start] = useState(() => {
-    const clue = clueFor(r.left, r.right);
-    return clue ? { left: r.left, right: r.right, clue } : ALL_SUGGESTIONS[Math.floor(Math.random() * ALL_SUGGESTIONS.length)];
-  });
+  // A fresh random scale and clue every time the editor opens (refreshing gives a new one); all editable.
+  const [start] = useState(() => ALL_SUGGESTIONS[Math.floor(Math.random() * ALL_SUGGESTIONS.length)]);
   const [left, setLeft] = useState(start.left);
   const [right, setRight] = useState(start.right);
   const [clue, setClue] = useState(start.clue);
