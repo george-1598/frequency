@@ -172,3 +172,8 @@ input:focus, select:focus { outline: none; border-color: #cbb994; }
 .alone p { margin: 0; }
 .footer-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .home-form .setting { margin: 0; }
+/* The creator label, in capitals (no emoji) */
+.round-psychic { text-transform: uppercase; letter-spacing: 0.1em; font-size: 12.5px; font-weight: 700; }
+.creator-tag { text-transform: uppercase; letter-spacing: 0.1em; font-size: 11.5px !important; font-weight: 700; color: var(--red) !important; }
+.btn-share { display: inline-flex; align-items: center; gap: 8px; }
+.share-icon { flex: none; }

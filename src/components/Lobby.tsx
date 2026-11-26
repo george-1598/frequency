@@ -60,7 +60,7 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
         <div className="setting">
           <span>Rounds as creator, each</span>
           <div className="seg">
-            {[1, 2, 3].map((n) => (
+            {[1, 3, 5].map((n) => (
               <button key={n} aria-pressed={state.rounds_per_player === n} disabled={!isHost} onClick={() => run('ti_update_settings', { p_rounds_per_player: n, p_precision: state.precision })}>
                 {n}
               </button>

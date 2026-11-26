@@ -10,7 +10,7 @@ export default function Home({ ready }: { ready: boolean }) {
   const [name, setName] = useState(savedName);
   const [code, setCode] = useState('');
   const [roomName, setRoomName] = useState('');
-  const [rounds, setRounds] = useState(2);
+  const [rounds, setRounds] = useState(3);
   const [busy, setBusy] = useState<'create' | 'join' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [demo, setDemo] = useState(68);
@@ -56,7 +56,7 @@ export default function Home({ ready }: { ready: boolean }) {
         <div className="setting">
           <span>Rounds as creator, each</span>
           <div className="seg">
-            {[1, 2, 3].map((n) => (
+            {[1, 3, 5].map((n) => (
               <button key={n} type="button" aria-pressed={rounds === n} onClick={() => setRounds(n)}>
                 {n}
               </button>

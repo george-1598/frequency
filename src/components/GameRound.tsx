@@ -38,7 +38,7 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
           Round {r.n} / {state.rounds_total}
         </span>
         <span className="round-psychic">
-          🎨 {isPsychic ? 'You’re the creator' : `${psychic?.name ?? 'Someone'} is the creator`}
+          {isPsychic ? 'You’re the creator' : `${psychic?.name ?? 'Someone'} is the creator`}
         </span>
       </div>
 
@@ -270,7 +270,7 @@ function Reveal({ state, run }: { state: RoomState; run: (fn: string, args?: Rec
             <li className="is-psychic">
               <Avatar name={byId.get(r.psychic)!.name} seat={byId.get(r.psychic)!.seat} size={26} />
               <span>{byId.get(r.psychic)!.name}</span>
-              <em>🎨 creator</em>
+              <em className="creator-tag">Creator</em>
               <strong>+{psychicPts}</strong>
             </li>
           )}
