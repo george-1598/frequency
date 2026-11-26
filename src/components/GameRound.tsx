@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { seatColor, type RoomState } from '../lib/room';
 import Dial from './Dial';
 import { Avatar } from './Lobby';
-import { EXAMPLES } from '../lib/examples';
+import { ALL_SUGGESTIONS, clueFor } from '../lib/examples';
 import ShareButton from './ShareButton';
 
 type Act = (fn: string, args?: Record<string, unknown>) => Promise<void>;
@@ -115,22 +115,27 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
 }
 
 const PRECISION = [
-  { tol: 10, label: 'Generous (wide target)' },
-  { tol: 7, label: 'Normal' },
-  { tol: 4, label: 'Tight (needs a good guess)' },
+  { tol: 7, label: 'Generous (wide target)' },
+  { tol: 4, label: 'Normal' },
+  { tol: 3, label: 'Tight (needs a good guess)' },
 ];
 
 /** The round's creator sets it up, like the advent calendar's editor. */
 function PsychicClue({ state, run }: { state: RoomState; run: (fn: string, args?: Record<string, unknown>) => Promise<void> }) {
   const r = state.current!;
-  const [left, setLeft] = useState(r.left);
-  const [right, setRight] = useState(r.right);
-  const [clue, setClue] = useState('');
+  // Start from the dealt card with its clue (or a random suggestion), all editable.
+  const [start] = useState(() => {
+    const clue = clueFor(r.left, r.right);
+    return clue ? { left: r.left, right: r.right, clue } : ALL_SUGGESTIONS[Math.floor(Math.random() * ALL_SUGGESTIONS.length)];
+  });
+  const [left, setLeft] = useState(start.left);
+  const [right, setRight] = useState(start.right);
+  const [clue, setClue] = useState(start.clue);
   const [spot, setSpot] = useState(r.target ?? 50);
-  const [tol, setTol] = useState(r.precision ?? state.precision);
+  const [tol, setTol] = useState(3);
   const [busy, setBusy] = useState(false);
   const suggest = () => {
-    const others = EXAMPLES.filter((e) => e.clue !== clue);
+    const others = ALL_SUGGESTIONS.filter((e) => e.clue !== clue);
     const e = others[Math.floor(Math.random() * others.length)];
     setLeft(e.left);
     setRight(e.right);
