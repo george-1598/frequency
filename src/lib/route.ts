@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 /** #/ (home) or #/r/CODE (a room). */
 export function useRoomCode(): string | null {
-  const read = () => window.location.hash.match(/^#\/r\/([A-Za-z0-9]{4,6})$/)?.[1]?.toUpperCase() ?? null;
+  const read = () => window.location.hash.match(/^#\/r\/([A-Za-z0-9]{4,8})$/)?.[1]?.toUpperCase() ?? null;
   const [code, setCode] = useState(read);
   useEffect(() => {
     const on = () => setCode(read());

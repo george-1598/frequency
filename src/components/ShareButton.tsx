@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { roomLink } from '../lib/route';
 
 /** Share the room's link (the phone's share sheet, or copy it). */
-export default function ShareButton({ code, name, compact = false }: { code: string; name?: string | null; compact?: boolean }) {
+export default function ShareButton({ code, compact = false }: { code: string; compact?: boolean }) {
   const [copied, setCopied] = useState(false);
   const [manual, setManual] = useState(false);
   const url = roomLink(code);
   const share = async () => {
     try {
       if (navigator.share) {
-        await navigator.share({ title: 'Frequency', text: `Join my Frequency game${name ? ` “${name}”` : ''}! Room code: ${code}`, url });
+        await navigator.share({ title: 'Frequency', text: `Join my Frequency game! Room code: ${code}`, url });
         return;
       }
     } catch {
@@ -35,16 +35,13 @@ export default function ShareButton({ code, name, compact = false }: { code: str
 }
 
 /** During the game: the room code and an invite button, so friends can join any time. */
-export function RoomBar({ code, name }: { code: string; name?: string | null }) {
+export function RoomBar({ code }: { code: string }) {
   return (
     <div className="room-bar">
-      <span className="room-bar-id">
-        {name && <b>{name}</b>}
-        <span>
-          Code <strong>{code}</strong>
-        </span>
+      <span>
+        Room <strong>{code}</strong>
       </span>
-      <ShareButton code={code} name={name} compact />
+      <ShareButton code={code} compact />
     </div>
   );
 }

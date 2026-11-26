@@ -26,7 +26,7 @@ export default function Room({ code, userId }: { code: string; userId: string | 
   return (
     <>
       {error && <p className="error banner">{error}</p>}
-      {state.status !== 'lobby' && <RoomBar code={state.code} name={state.name} />}
+      {state.status !== 'lobby' && <RoomBar code={state.code} />}
       {state.status === 'lobby' && <Lobby state={state} act={act} />}
       {state.status === 'playing' && <GameRound state={state} act={act} />}
       {state.status === 'finished' && <Results state={state} act={act} />}

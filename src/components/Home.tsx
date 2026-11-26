@@ -9,7 +9,7 @@ import { LogoMark } from './Logo';
 export default function Home({ ready }: { ready: boolean }) {
   const [name, setName] = useState(savedName);
   const [code, setCode] = useState('');
-  const [roomName, setRoomName] = useState('');
+  const [newCode, setNewCode] = useState('');
   const [rounds, setRounds] = useState(3);
   const [busy, setBusy] = useState<'create' | 'join' | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export default function Home({ ready }: { ready: boolean }) {
     try {
       const room =
         kind === 'create'
-          ? await call<string>('ti_create_room', { p_name: name, p_room_name: roomName, p_rounds_per_player: rounds })
+          ? await call<string>('ti_create_room', { p_name: name, p_code: newCode, p_rounds_per_player: rounds })
           : await call<string>('ti_join_room', { p_code: code, p_name: name });
       goToRoom(room);
     } catch (err) {
@@ -36,8 +36,10 @@ export default function Home({ ready }: { ready: boolean }) {
   return (
     <section className="home">
       <header className="brand">
-        <LogoMark size={72} />
-        <h1>Frequency</h1>
+        <div className="brand-row">
+          <LogoMark size={46} />
+          <h1>Frequency</h1>
+        </div>
         <p>One player sets the secret spot. Everyone else tunes in.</p>
       </header>
       <div className="card home-demo" aria-hidden>
@@ -50,8 +52,16 @@ export default function Home({ ready }: { ready: boolean }) {
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={24} placeholder="e.g. Ana" autoComplete="nickname" />
         </label>
         <label>
-          <span>Room name (optional)</span>
-          <input value={roomName} onChange={(e) => setRoomName(e.target.value)} maxLength={40} placeholder="Leave empty for a random name" />
+          <span>Room code (optional)</span>
+          <input
+            value={newCode}
+            onChange={(e) => setNewCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+            maxLength={8}
+            placeholder="Leave empty for a random code"
+            className={newCode ? 'code-input' : undefined}
+            autoCapitalize="characters"
+            autoComplete="off"
+          />
         </label>
         <div className="setting">
           <span>Rounds as creator, each</span>
@@ -69,8 +79,8 @@ export default function Home({ ready }: { ready: boolean }) {
         <small className="muted center-text">You’ll be the first creator. Share the link and friends can join at any time.</small>
         <div className="or">or join one</div>
         <form className="join-row" onSubmit={(e) => run('join', e)}>
-          <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} maxLength={5} placeholder="CODE" aria-label="Room code" className="code-input" />
-          <button className="btn" disabled={!ready || busy !== null || code.length < 5}>
+          <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} maxLength={8} placeholder="CODE" aria-label="Room code" className="code-input" autoCapitalize="characters" autoComplete="off" />
+          <button className="btn" disabled={!ready || busy !== null || code.length < 4}>
             {busy === 'join' ? 'Joining…' : 'Join'}
           </button>
         </form>

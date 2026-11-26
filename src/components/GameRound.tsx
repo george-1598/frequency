@@ -77,7 +77,7 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
               {guessers.length === 0 ? (
                 <div className="alone">
                   <p>Nobody else is here yet. Invite friends: they can guess this round as soon as they join.</p>
-                  <ShareButton code={state.code} name={state.name} />
+                  <ShareButton code={state.code} />
                 </div>
               ) : (
                 <p className="muted center-text">Only you can see the target. Waiting for {waitingFor.map((p) => p.name).join(', ') || 'everyone'}…</p>
