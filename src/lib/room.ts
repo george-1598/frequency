@@ -21,6 +21,8 @@ export interface Round {
   clue: string | null;
   phase: 'clue' | 'guessing' | 'reveal';
   skips: number;
+  /** This round's precision (band half-width): 10 generous, 7 normal, 4 tight. */
+  precision: number;
   target: number | null;
   guesses: Guess[];
 }
@@ -120,5 +122,5 @@ export const saveName = (n: string) => {
 };
 
 /** A colour per seat, for needles and avatars. */
-export const SEAT_COLORS = ['#FF6B8B', '#4ECDC4', '#FFC857', '#9B8CFF', '#5DD39E', '#FF9F43', '#54A0FF', '#F78FB3', '#26DE81', '#FD9644', '#A29BFE', '#FDCB6E'];
+export const SEAT_COLORS = ['#E8685A', '#2E8B8B', '#E0A43A', '#4A90C2', '#6BA368', '#9B6BC9', '#D9534F', '#3D7EA6', '#C9822B', '#5E9C76', '#B5527A', '#7A231C'];
 export const seatColor = (seat: number) => SEAT_COLORS[seat % SEAT_COLORS.length];

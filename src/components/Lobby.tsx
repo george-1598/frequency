@@ -98,7 +98,7 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
           </div>
         </div>
         <div className="setting">
-          <span>Target size</span>
+          <span>Starting target size</span>
           <div className="seg">
             {PRECISION.map((p) => (
               <button key={p.v} aria-pressed={state.precision === p.v} disabled={!isHost} onClick={() => run('ti_update_settings', { p_rounds_per_player: state.rounds_per_player, p_precision: p.v })}>
@@ -108,7 +108,7 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
           </div>
         </div>
         <p className="muted">
-          {rounds} rounds in total.{!isHost && ' The host chooses the settings.'}
+          {rounds} rounds in total. Each psychic can still change the target size for their round.{!isHost && ' The host chooses the settings.'}
         </p>
       </div>
 

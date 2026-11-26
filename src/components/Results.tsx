@@ -57,7 +57,7 @@ export default function Results({ state, act }: { state: RoomState; act: Act }) 
   );
 }
 
-const COLORS = ['#FFC857', '#FF7A93', '#7B61FF', '#4ECDC4', '#ffffff'];
+const COLORS = ['#F2B84B', '#F0713E', '#4A90C2', '#E8685A', '#7A231C'];
 function Confetti() {
   return (
     <div className="confetti" aria-hidden>

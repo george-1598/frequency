@@ -1,8 +1,9 @@
 # 📻 Tuned In
 
-A party game for phones. Each round one player — the **psychic** — sees a secret
-spot on a scale (like *Cold ⟷ Hot*) and gives a clue. Everyone else drags their
-needle to where they think the clue sits. Closest wins the most points.
+A party game for phones. Each round one player — the **psychic** — sets up a
+scale (like *Cold ⟷ Hot*), drags the needle to a secret spot, picks how precise
+it has to be, and writes a clue (or rolls 🎲 for a suggestion). Everyone else
+drags their needle to where they think the clue sits. Closest wins the most points.
 
 **Play:** https://george-1598.github.io/tuned-in/
 

@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { seatColor, type RoomState } from '../lib/room';
 import Dial from './Dial';
 import { Avatar } from './Lobby';
+import { EXAMPLES } from '../lib/examples';
 
 type Act = (fn: string, args?: Record<string, unknown>) => Promise<void>;
 
@@ -27,7 +28,7 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
   const guessers = state.players.filter((p) => p.id !== r.psychic);
   const lockedIds = new Set(r.guesses.map((g) => g.user_id));
   const waitingFor = guessers.filter((p) => !lockedIds.has(p.id));
-  const tol = state.precision;
+  const tol = r.precision ?? state.precision;
 
   return (
     <section className="stack">
@@ -46,9 +47,9 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
         ) : (
           <div className="card">
             <p className="waiting">
-              {psychic?.name ?? 'The psychic'} is thinking of a clue<span className="dots" />
+              {psychic?.name ?? 'The psychic'} is preparing the round<span className="dots" />
             </p>
-            <Dial value={50} showMain={false} left={r.left} right={r.right} label="The scale for this round" />
+            <Dial value={50} showMain={false} left="?" right="?" label="Waiting for the round" />
             {isHost && psychic && !psychic.online && (
               <button className="link" onClick={() => run('ti_skip_round')}>
                 {psychic.name} seems to be away: skip this round
@@ -94,30 +95,71 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
   );
 }
 
+const PRECISION = [
+  { tol: 10, label: 'Generous (wide target)' },
+  { tol: 7, label: 'Normal' },
+  { tol: 4, label: 'Tight (needs a good guess)' },
+];
+
+/** The psychic sets up the round, like the advent calendar's editor. */
 function PsychicClue({ state, run }: { state: RoomState; run: (fn: string, args?: Record<string, unknown>) => Promise<void> }) {
   const r = state.current!;
+  const [left, setLeft] = useState(r.left);
+  const [right, setRight] = useState(r.right);
   const [clue, setClue] = useState('');
+  const [spot, setSpot] = useState(r.target ?? 50);
+  const [tol, setTol] = useState(r.precision ?? state.precision);
   const [busy, setBusy] = useState(false);
-  const send = async (e: FormEvent) => {
-    e.preventDefault();
+  const suggest = () => {
+    const others = EXAMPLES.filter((e) => e.clue !== clue);
+    const e = others[Math.floor(Math.random() * others.length)];
+    setLeft(e.left);
+    setRight(e.right);
+    setClue(e.clue);
+  };
+  const send = async (ev: FormEvent) => {
+    ev.preventDefault();
     setBusy(true);
-    await run('ti_give_clue', { p_clue: clue });
+    await run('ti_set_round', { p_left: left, p_right: right, p_clue: clue, p_target: spot, p_precision: tol });
     setBusy(false);
   };
   return (
-    <div className="card psychic">
-      <p className="psychic-tip">Only you see the target. Give a clue that points the others to it.</p>
-      <Dial value={r.target ?? 50} showMain={false} target={r.target != null ? { center: r.target, tol: state.precision } : null} left={r.left} right={r.right} label="The secret spot" />
-      <form className="clue-form" onSubmit={send}>
-        <input value={clue} onChange={(e) => setClue(e.target.value)} maxLength={80} placeholder="Your clue, e.g. A cup of hot chocolate" aria-label="Your clue" autoFocus />
-        <button className="btn btn-primary" disabled={busy || !clue.trim()}>
-          {busy ? 'Sending…' : 'Send clue'}
-        </button>
-      </form>
-      <button className="link" onClick={() => run('ti_skip_card')} disabled={r.skips >= 3}>
-        {r.skips >= 3 ? 'No more redraws this round' : `🔄 Draw another card (${3 - r.skips} left)`}
+    <form className="card editor" onSubmit={send}>
+      <p className="psychic-tip">Only you can see this. Set up the round, then send it to everyone.</p>
+      <div className="editor-row">
+        <label>
+          <span>Left end</span>
+          <input value={left} onChange={(e) => setLeft(e.target.value)} maxLength={40} placeholder="e.g. Quiet place" />
+        </label>
+        <label>
+          <span>Right end</span>
+          <input value={right} onChange={(e) => setRight(e.target.value)} maxLength={40} placeholder="e.g. Loud place" />
+        </label>
+      </div>
+      <label>
+        <span>The clue</span>
+        <input value={clue} onChange={(e) => setClue(e.target.value)} maxLength={80} placeholder="e.g. A library on a Sunday morning" />
+      </label>
+      <button type="button" className="link link-left" onClick={suggest}>
+        🎲 Suggest another example
       </button>
-    </div>
+      <span className="editor-label">Drag the needle to the secret spot</span>
+      <Dial value={spot} onChange={setSpot} target={{ center: spot, tol }} left={left} right={right} label="Secret spot" />
+      <label>
+        <span>Precision</span>
+        <select value={tol} onChange={(e) => setTol(Number(e.target.value))}>
+          {PRECISION.map((p) => (
+            <option key={p.tol} value={p.tol}>
+              {p.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <small className="editor-help">The blue middle band is worth 4 points, orange 3, yellow 2. Nobody sees where it is until the reveal.</small>
+      <button className="btn btn-primary btn-big" disabled={busy || !left.trim() || !right.trim() || !clue.trim()}>
+        {busy ? 'Sending…' : 'Send to everyone'}
+      </button>
+    </form>
   );
 }
 
@@ -181,7 +223,7 @@ function Reveal({ state, run }: { state: RoomState; run: (fn: string, args?: Rec
         <Dial
           value={r.target ?? 50}
           showMain={false}
-          target={show && r.target != null ? { center: r.target, tol: state.precision } : null}
+          target={show && r.target != null ? { center: r.target, tol: r.precision ?? state.precision } : null}
           needles={r.guesses.map((g) => {
             const p = byId.get(g.user_id);
             return { value: g.value ?? 50, color: p ? seatColor(p.seat) : '#999', label: p?.name.slice(0, 1).toUpperCase() };
