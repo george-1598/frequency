@@ -6,10 +6,12 @@ import Lobby from './Lobby';
 import GameRound from './GameRound';
 import Results from './Results';
 import { RoomBar } from './ShareButton';
+import { useTurnAlert } from '../lib/alert';
 
 /** A room: join prompt, lobby, the current round, or the results. */
 export default function Room({ code, userId }: { code: string; userId: string | null }) {
   const { state, error, refresh, act } = useRoom(code, userId);
+  const { sound, setSound } = useTurnAlert(state?.joined ? state : null);
 
   if (!state) return <p className="loading">{error ?? 'Tuning in…'}</p>;
   if (state.missing)
@@ -26,7 +28,7 @@ export default function Room({ code, userId }: { code: string; userId: string | 
   return (
     <>
       {error && <p className="error banner">{error}</p>}
-      {state.status !== 'lobby' && <RoomBar code={state.code} />}
+      {state.status !== 'lobby' && <RoomBar code={state.code} sound={sound} onSound={setSound} />}
       {state.status === 'lobby' && <Lobby state={state} act={act} />}
       {state.status === 'playing' && <GameRound state={state} act={act} />}
       {state.status === 'finished' && <Results state={state} act={act} />}

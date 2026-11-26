@@ -190,3 +190,30 @@ input:focus, select:focus { outline: none; border-color: #cbb994; }
 .home-demo .dial-svg { max-width: 300px; }
 .home-demo .dial-labels { max-width: 300px; font-size: 14px; }
 .home-form { gap: 10px; padding: 16px; }
+
+/* Still guessing (everyone sees who hasn't locked in) */
+.still-guessing { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 8px; margin-top: -4px; font-size: 13px; color: var(--muted); }
+.still-guessing .still-label { font-weight: 600; }
+.still-guessing ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.still-guessing li { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 3px; border-radius: 999px; background: var(--card); color: var(--ink); font-weight: 600; box-shadow: 0 2px 6px rgba(60, 40, 20, 0.06); }
+.still-guessing li.is-away { opacity: 0.6; }
+.still-guessing li em { font-style: normal; font-weight: 500; color: var(--muted); font-size: 12px; }
+
+/* Sound toggle */
+.room-bar-actions { display: flex; align-items: center; gap: 6px; }
+.btn-icon { background: #efe7da; padding-left: 10px; padding-right: 10px; display: inline-flex; align-items: center; color: var(--red); }
+.btn-icon.is-off { color: var(--muted); }
+
+/* Round-by-round recap */
+.recap { display: grid; gap: 12px; margin-top: 8px; }
+.recap-title { margin: 6px 0 0; text-align: center; font-size: 19px; color: var(--red); }
+.recap-round { padding: 14px 14px 12px; }
+.recap-round header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.recap-clue { margin: 6px 0 2px; text-align: center; font-weight: 700; font-size: 16px; }
+.recap-round .dial-svg, .recap-round .dial-labels { max-width: 280px; }
+.recap-round .dial-labels { font-size: 13px; }
+.recap-guesses { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; }
+.recap-guesses li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 8px; font-size: 14px; padding: 4px 8px; border-radius: 10px; background: var(--panel); }
+.recap-guesses li i { width: 10px; height: 10px; border-radius: 50%; }
+.recap-guesses li em { font-style: normal; color: var(--muted); font-size: 12.5px; }
+.recap-worst { grid-column: 2 / -1; font-size: 11.5px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.06em; }

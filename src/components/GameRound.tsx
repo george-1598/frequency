@@ -71,6 +71,7 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
       {r.phase === 'guessing' && (
         <>
           <p className="clue-big">“{r.clue}”</p>
+          {waitingFor.length > 0 && <StillGuessing players={waitingFor} me={state.me} />}
           {isPsychic ? (
             <div className="card">
               <Dial value={r.target ?? 50} showMain={false} target={r.target != null ? { center: r.target, tol } : null} left={r.left} right={r.right} label="The secret spot" />
@@ -80,9 +81,8 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
                   <ShareButton code={state.code} />
                 </div>
               ) : (
-                <p className="muted center-text">Only you can see the target. Waiting for {waitingFor.map((p) => p.name).join(', ') || 'everyone'}…</p>
+                <p className="muted center-text">Only you can see the target.</p>
               )}
-              <LockedList guessers={guessers} locked={lockedIds} />
               {guessers.length > 0 && (
                 <button className="link" onClick={() => run('ti_force_reveal')}>
                   Reveal now
@@ -92,8 +92,7 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
           ) : lockedIds.has(state.me) ? (
             <div className="card">
               <Dial value={r.guesses.find((g) => g.user_id === state.me)?.value ?? 50} left={r.left} right={r.right} label="Your locked guess" />
-              <p className="locked">🔒 Locked in. Waiting for {waitingFor.map((p) => p.name).join(', ') || 'the reveal'}…</p>
-              <LockedList guessers={guessers} locked={lockedIds} />
+              <p className="locked">🔒 Locked in.</p>
               {isHost && waitingFor.length > 0 && (
                 <button className="link" onClick={() => run('ti_force_reveal')}>
                   Reveal now
@@ -211,17 +210,23 @@ function GuessPanel({ left, right, run }: { left: string; right: string; run: (f
   );
 }
 
-function LockedList({ guessers, locked }: { guessers: RoomState['players']; locked: Set<string> }) {
+/** Who still hasn't locked in a guess, shown to everyone. */
+function StillGuessing({ players, me }: { players: RoomState['players']; me: string }) {
   return (
-    <ul className="locked-list">
-      {guessers.map((p) => (
-        <li key={p.id} className={locked.has(p.id) ? 'is-locked' : undefined}>
-          <Avatar name={p.name} seat={p.seat} size={26} />
-          {p.name}
-          <span>{locked.has(p.id) ? '🔒' : '…'}</span>
-        </li>
-      ))}
-    </ul>
+    <div className="still-guessing" aria-live="polite">
+      <span className="still-label">
+        Still guessing<span className="dots" />
+      </span>
+      <ul>
+        {players.map((p) => (
+          <li key={p.id} className={p.online ? undefined : 'is-away'}>
+            <Avatar name={p.name} seat={p.seat} size={22} />
+            {p.id === me ? 'You' : p.name}
+            {!p.online && <em>away</em>}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

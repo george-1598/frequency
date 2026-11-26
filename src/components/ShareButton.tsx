@@ -35,14 +35,34 @@ export default function ShareButton({ code, compact = false }: { code: string; c
 }
 
 /** During the game: the room code and an invite button, so friends can join any time. */
-export function RoomBar({ code }: { code: string }) {
+export function RoomBar({ code, sound, onSound }: { code: string; sound: boolean; onSound: (on: boolean) => void }) {
   return (
     <div className="room-bar">
       <span>
         Room <strong>{code}</strong>
       </span>
-      <ShareButton code={code} compact />
+      <div className="room-bar-actions">
+        <button
+          className={`btn btn-small btn-icon${sound ? '' : ' is-off'}`}
+          onClick={() => onSound(!sound)}
+          aria-label={sound ? 'Sound on: tap to mute' : 'Sound off: tap to turn on'}
+          title={sound ? 'A chime when it’s your turn' : 'Muted'}
+        >
+          <BellIcon off={!sound} />
+        </button>
+        <ShareButton code={code} compact />
+      </div>
     </div>
+  );
+}
+
+function BellIcon({ off }: { off: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z" />
+      <path d="M10 20.5a2 2 0 0 0 4 0" />
+      {off && <line x1="3" y1="3" x2="21" y2="21" />}
+    </svg>
   );
 }
 

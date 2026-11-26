@@ -1,5 +1,6 @@
 import type { RoomState } from '../lib/room';
 import { Avatar } from './Lobby';
+import Recap from './Recap';
 
 type Act = (fn: string, args?: Record<string, unknown>) => Promise<void>;
 
@@ -49,6 +50,7 @@ export default function Results({ state, act }: { state: RoomState; act: Act }) 
       ) : (
         <p className="waiting">The host can start another game.</p>
       )}
+      <Recap code={state.code} game={state.rounds_total} />
     </section>
   );
 }
