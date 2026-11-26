@@ -7,7 +7,9 @@
 set -euo pipefail
 
 PROJECT_REF="${PROJECT_REF:-naychdhodwhoppnvdytp}"
-TOKEN="${SUPABASE_ACCESS_TOKEN:-$(security find-generic-password -s 'Supabase CLI' -a supabase -w 2>/dev/null || true)}"
+# This project lives in a different Supabase account than the CLI login, so its
+# token is kept in its own keychain entry ("tuned-in-supabase").
+TOKEN="${SUPABASE_ACCESS_TOKEN:-$(security find-generic-password -s 'tuned-in-supabase' -a supabase -w 2>/dev/null || security find-generic-password -s 'Supabase CLI' -a supabase -w 2>/dev/null || true)}"
 TOKEN="${TOKEN#go-keyring-base64:}"
 if [[ "$TOKEN" != sbp_* ]]; then TOKEN="$(printf '%s' "$TOKEN" | base64 -d 2>/dev/null || true)"; fi
 if [[ "$TOKEN" != sbp_* ]]; then

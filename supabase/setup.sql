@@ -229,7 +229,7 @@ begin
     where g.room = p_room and g.n = rd.n;
   update public.ti_players p set score = p.score + g.points
     from public.ti_guesses g where g.room = p_room and g.n = rd.n and p.room = p_room and p.user_id = g.user_id;
-  select coalesce(round(avg(points) * 2) / 2, 0) into v_avg from public.ti_guesses where room = p_room and n = rd.n;
+  select round(coalesce(round(avg(points) * 2) / 2, 0), 1) into v_avg from public.ti_guesses where room = p_room and n = rd.n;
   update public.ti_players set score = score + v_avg where room = p_room and user_id = rd.psychic;
   update public.ti_rounds set phase = 'reveal' where room = p_room and n = rd.n;
 end
@@ -283,14 +283,14 @@ begin
   if not found then
     raise exception 'No room with the code %', v_code;
   end if;
+  if exists (select 1 from public.ti_active_players(v_code) where lower(name) = lower(v_name) and user_id <> auth.uid()) then
+    raise exception 'Someone in this room is already called %', v_name;
+  end if;
   if exists (select 1 from public.ti_players where room = v_code and user_id = auth.uid()) then
     update public.ti_players set name = v_name, left_at = null, last_seen = now() where room = v_code and user_id = auth.uid();
   else
     if (select count(*) from public.ti_active_players(v_code)) >= 12 then
       raise exception 'This room is full (12 players)';
-    end if;
-    if exists (select 1 from public.ti_active_players(v_code) where lower(name) = lower(v_name)) then
-      raise exception 'Someone in this room is already called %', v_name;
     end if;
     insert into public.ti_players (room, user_id, name, seat)
       values (v_code, auth.uid(), v_name, coalesce((select max(seat) + 1 from public.ti_players where room = v_code), 0));
@@ -459,6 +459,9 @@ begin
   end if;
   if rd.psychic = auth.uid() then
     raise exception 'The psychic doesn''t guess';
+  end if;
+  if p_value is null then
+    raise exception 'Move the needle first';
   end if;
   insert into public.ti_guesses (room, n, user_id, value) values (r.code, rd.n, auth.uid(), greatest(0, least(100, p_value)))
     on conflict (room, n, user_id) do nothing;

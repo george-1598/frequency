@@ -68,6 +68,9 @@ export function useRoom(code: string, userId: string | null) {
     }
   }, [code, userId]);
 
+  // Realtime only delivers this room's changes to its players, so (re)subscribe
+  // once we've joined; before that we'd never hear anything.
+  const joined = Boolean(state?.joined);
   useEffect(() => {
     if (!userId) return;
     void refresh();
@@ -86,7 +89,7 @@ export function useRoom(code: string, userId: string | null) {
       window.clearInterval(beat);
       document.removeEventListener('visibilitychange', onVisible);
     };
-  }, [code, userId, refresh]);
+  }, [code, userId, refresh, joined]);
 
   /** Run a room action, then refresh right away (Realtime will follow for everyone else). */
   const act = useCallback(
