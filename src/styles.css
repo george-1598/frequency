@@ -299,3 +299,11 @@ input:focus, select:focus { outline: none; border-color: #cbb994; }
 @keyframes pulse { 50% { opacity: 0.3; } }
 .watch-peek { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; font-size: 14px; color: var(--muted); }
 .watch-peek input { width: 18px; height: 18px; }
+
+/* Reveal now (asks first) and players who didn't guess */
+.btn-reveal-now { display: block; margin: 12px auto 0; background: #efe7da; color: var(--red); }
+.reveal-confirm { display: grid; gap: 8px; margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: #fbeee4; color: var(--red); font-weight: 600; font-size: 14px; }
+.reveal-confirm small { display: block; margin-top: 2px; font-weight: 500; color: var(--muted); font-size: 12.5px; }
+.reveal-confirm div { display: flex; justify-content: flex-end; gap: 6px; }
+.round-points li.is-missed { opacity: 0.6; }
+.round-points li.is-missed em { font-style: italic; }

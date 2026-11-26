@@ -83,21 +83,13 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
               ) : (
                 <p className="muted center-text">Only you can see the target.</p>
               )}
-              {guessers.length > 0 && (
-                <button className="link" onClick={() => run('ti_force_reveal')}>
-                  Reveal now
-                </button>
-              )}
+              {guessers.length > 0 && <RevealNow waiting={waitingFor} run={run} />}
             </div>
           ) : lockedIds.has(state.me) ? (
             <div className="card">
               <Dial value={r.guesses.find((g) => g.user_id === state.me)?.value ?? 50} left={r.left} right={r.right} label="Your locked guess" />
               <p className="locked">🔒 Locked in.</p>
-              {isHost && waitingFor.length > 0 && (
-                <button className="link" onClick={() => run('ti_force_reveal')}>
-                  Reveal now
-                </button>
-              )}
+              {isHost && waitingFor.length > 0 && <RevealNow waiting={waitingFor} run={run} />}
             </div>
           ) : (
             <GuessPanel key={r.n} left={r.left} right={r.right} run={run} />
@@ -209,6 +201,43 @@ function GuessPanel({ left, right, run }: { left: string; right: string; run: (f
   );
 }
 
+const nameList = (names: string[]) => (names.length < 2 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`);
+
+/** End the guessing early; asks first, naming who'll miss out. */
+function RevealNow({ waiting, run }: { waiting: RoomState['players']; run: (fn: string, args?: Record<string, unknown>) => Promise<void> }) {
+  const [confirm, setConfirm] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const reveal = async () => {
+    setBusy(true);
+    await run('ti_force_reveal');
+    setBusy(false);
+    setConfirm(false);
+  };
+  if (!confirm)
+    return (
+      <button className="btn btn-reveal-now" onClick={() => (waiting.length ? setConfirm(true) : void reveal())}>
+        Reveal now
+      </button>
+    );
+  const names = nameList(waiting.map((p) => p.name));
+  return (
+    <div className="reveal-confirm">
+      <span>
+        {names} {waiting.length === 1 ? 'hasn’t' : 'haven’t'} guessed yet. Reveal anyway?
+        <small>{waiting.length === 1 ? 'They’ll' : 'They’ll each'} get 0 points this round.</small>
+      </span>
+      <div>
+        <button className="btn btn-small" onClick={() => setConfirm(false)} disabled={busy}>
+          Wait
+        </button>
+        <button className="btn btn-small btn-primary" onClick={reveal} disabled={busy}>
+          {busy ? 'Revealing…' : 'Reveal'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /** Who still hasn't locked in a guess, shown to everyone. */
 function StillGuessing({ players, me }: { players: RoomState['players']; me: string }) {
   return (
@@ -241,6 +270,8 @@ function Reveal({ state, run }: { state: RoomState; run: (fn: string, args?: Rec
   const scored = r.guesses.filter((g) => g.points != null);
   const psychicPts = scored.length ? Math.round((scored.reduce((s, g) => s + (g.points ?? 0), 0) / scored.length) * 2) / 2 : 0;
   const last = r.n >= state.rounds_total;
+  const guessed = new Set(r.guesses.map((g) => g.user_id));
+  const missed = state.players.filter((p) => p.id !== r.psychic && !guessed.has(p.id));
   return (
     <>
       <p className="clue-big">“{r.clue ?? '—'}”</p>
@@ -272,6 +303,14 @@ function Reveal({ state, run }: { state: RoomState; run: (fn: string, args?: Rec
                 </li>
               );
             })}
+          {missed.map((p) => (
+            <li key={p.id} className="is-missed">
+              <Avatar name={p.name} seat={p.seat} size={26} />
+              <span>{p.name}</span>
+              <em>Didn’t guess</em>
+              <strong>+0</strong>
+            </li>
+          ))}
           {byId.get(r.psychic) && (
             <li className="is-psychic">
               <Avatar name={byId.get(r.psychic)!.name} seat={byId.get(r.psychic)!.seat} size={26} />
