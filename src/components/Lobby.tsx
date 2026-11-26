@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { roomLink, goHome } from '../lib/route';
+import { roomLink } from '../lib/route';
 import { seatColor, type RoomState } from '../lib/room';
 
 type Act = (fn: string, args?: Record<string, unknown>) => Promise<void>;
@@ -35,7 +35,7 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
   const share = async () => {
     const url = roomLink(state.code);
     try {
-      if (navigator.share) return await navigator.share({ title: 'Tuned In', text: `Join my Tuned In room: ${state.code}`, url });
+      if (navigator.share) return await navigator.share({ title: 'Frequency', text: `Join my Frequency game! Room code: ${state.code}`, url });
     } catch {
       return;
     }
@@ -88,7 +88,7 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
       <div className="card">
         <h2>Settings</h2>
         <div className="setting">
-          <span>Rounds as psychic, each</span>
+          <span>Rounds as creator, each</span>
           <div className="seg">
             {[1, 2, 3].map((n) => (
               <button key={n} aria-pressed={state.rounds_per_player === n} disabled={!isHost} onClick={() => run('ti_update_settings', { p_rounds_per_player: n, p_precision: state.precision })}>
@@ -108,7 +108,7 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
           </div>
         </div>
         <p className="muted">
-          {rounds} rounds in total. Each psychic can still change the target size for their round.{!isHost && ' The host chooses the settings.'}
+          {rounds} rounds in total. Each creator can still change the target size for their round.{!isHost && ' The host chooses the settings.'}
         </p>
       </div>
 
@@ -151,9 +151,6 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
       ) : (
         <p className="waiting">Waiting for the host to start…</p>
       )}
-      <button className="link" onClick={() => run('ti_leave_room').then(goHome)}>
-        Leave the room
-      </button>
     </section>
   );
 }

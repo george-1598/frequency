@@ -1,17 +1,19 @@
-# 📻 Tuned In
+# Frequency
 
-A party game for phones. Each round one player — the **psychic** — sets up a
+A party game for phones. Each round one player — the **creator** — sets up a
 scale (like *Cold ⟷ Hot*), drags the needle to a secret spot, picks how precise
 it has to be, and writes a clue (or rolls 🎲 for a suggestion). Everyone else
 drags their needle to where they think the clue sits. Closest wins the most points.
 
 **Play:** https://george-1598.github.io/tuned-in/
 
+(The repo and web address still say `tuned-in`, the game's working title.)
+
 - Rooms with a 5-letter code or share link; 2–12 players, no accounts.
 - Live on every phone (Supabase Realtime); the server keeps the target and the
   guesses secret until the reveal.
 - 100 built-in scales, plus your own per room.
-- Scoring: middle band 4, then 3, then 2; the psychic gets the guessers' average.
+- Scoring: middle band 4, then 3, then 2; the creator gets the guessers' average.
 
 ## Stack
 

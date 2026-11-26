@@ -1,5 +1,4 @@
 import type { RoomState } from '../lib/room';
-import { goHome } from '../lib/route';
 import { Avatar } from './Lobby';
 
 type Act = (fn: string, args?: Record<string, unknown>) => Promise<void>;
@@ -50,9 +49,6 @@ export default function Results({ state, act }: { state: RoomState; act: Act }) 
       ) : (
         <p className="waiting">The host can start another game.</p>
       )}
-      <button className="link" onClick={() => act('ti_leave_room').then(goHome)}>
-        Leave the room
-      </button>
     </section>
   );
 }

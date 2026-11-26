@@ -8,7 +8,7 @@ type Act = (fn: string, args?: Record<string, unknown>) => Promise<void>;
 
 const BAND_NAME: Record<number, string> = { 4: 'Bullseye!', 3: 'Close', 2: 'Near', 0: 'Missed' };
 
-/** One round: the psychic's clue, everyone's guesses, and the reveal. */
+/** One round: the creator's clue, everyone's guesses, and the reveal. */
 export default function GameRound({ state, act }: { state: RoomState; act: Act }) {
   const r = state.current;
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
           Round {r.n} / {state.rounds_total}
         </span>
         <span className="round-psychic">
-          🔮 {isPsychic ? 'You’re the psychic' : `${psychic?.name ?? 'Someone'} is the psychic`}
+          🎨 {isPsychic ? 'You’re the creator' : `${psychic?.name ?? 'Someone'} is the creator`}
         </span>
       </div>
 
@@ -47,7 +47,7 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
         ) : (
           <div className="card">
             <p className="waiting">
-              {psychic?.name ?? 'The psychic'} is preparing the round<span className="dots" />
+              {psychic?.name ?? 'The creator'} is preparing the round<span className="dots" />
             </p>
             <Dial value={50} showMain={false} left="?" right="?" label="Waiting for the round" />
             {isHost && psychic && !psychic.online && (
@@ -101,7 +101,7 @@ const PRECISION = [
   { tol: 4, label: 'Tight (needs a good guess)' },
 ];
 
-/** The psychic sets up the round, like the advent calendar's editor. */
+/** The round's creator sets it up, like the advent calendar's editor. */
 function PsychicClue({ state, run }: { state: RoomState; run: (fn: string, args?: Record<string, unknown>) => Promise<void> }) {
   const r = state.current!;
   const [left, setLeft] = useState(r.left);
@@ -251,7 +251,7 @@ function Reveal({ state, run }: { state: RoomState; run: (fn: string, args?: Rec
             <li className="is-psychic">
               <Avatar name={byId.get(r.psychic)!.name} seat={byId.get(r.psychic)!.seat} size={26} />
               <span>{byId.get(r.psychic)!.name}</span>
-              <em>🔮 psychic</em>
+              <em>🎨 creator</em>
               <strong>+{psychicPts}</strong>
             </li>
           )}

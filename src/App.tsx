@@ -3,6 +3,7 @@ import { goHome, useRoomCode } from './lib/route';
 import Home from './components/Home';
 import Room from './components/Room';
 import { SUPABASE_URL } from './config';
+import Logo from './components/Logo';
 
 export default function App() {
   const { userId, error } = useSession();
@@ -13,7 +14,7 @@ export default function App() {
       {code && (
         <header className="topbar">
           <button className="topbar-brand" onClick={goHome}>
-            📻 Tuned In
+            <Logo />
           </button>
         </header>
       )}

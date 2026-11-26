@@ -1,4 +1,4 @@
-/** Ideas for the 🎲 button: both ends of a scale and a clue (the psychic still sets the spot). */
+/** Ideas for the 🎲 button: both ends of a scale and a clue (the creator still sets the spot). */
 export const EXAMPLES: { left: string; right: string; clue: string }[] = [
   { left: 'Quiet place', right: 'Loud place', clue: 'A library on a Sunday morning' },
   { left: 'Naughty', right: 'Nice', clue: 'Eating the last slice without asking' },

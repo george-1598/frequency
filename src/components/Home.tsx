@@ -3,6 +3,7 @@ import { call } from '../lib/supabase';
 import { goToRoom } from '../lib/route';
 import { saveName, savedName } from '../lib/room';
 import Dial from './Dial';
+import { LogoMark } from './Logo';
 
 /** Enter your name, then create a room or join one with its code. */
 export default function Home({ ready }: { ready: boolean }) {
@@ -30,9 +31,9 @@ export default function Home({ ready }: { ready: boolean }) {
   return (
     <section className="home">
       <header className="brand">
-        <span className="brand-mark">📻</span>
-        <h1>Tuned In</h1>
-        <p>One player knows the secret spot. Everyone else tunes in.</p>
+        <LogoMark size={72} />
+        <h1>Frequency</h1>
+        <p>One player sets the secret spot. Everyone else tunes in.</p>
       </header>
       <div className="card home-demo" aria-hidden>
         <p className="clue-big">“A cup of hot chocolate”</p>
@@ -58,11 +59,11 @@ export default function Home({ ready }: { ready: boolean }) {
       <details className="card howto">
         <summary>How to play</summary>
         <ol>
-          <li>Each round, one player is the <strong>psychic</strong>. Only they see where the secret spot is on a scale, like <em>Cold ⟷ Hot</em>.</li>
-          <li>The psychic gives a clue, like <em>“A cup of hot chocolate”</em>.</li>
+          <li>Each round, one player is the <strong>creator</strong>. They pick a scale, like <em>Cold ⟷ Hot</em>, and hide a secret spot on it.</li>
+          <li>The creator gives a clue, like <em>“A cup of hot chocolate”</em>.</li>
           <li>Everyone else moves their needle to where they think the clue sits, and locks it in.</li>
-          <li>Reveal! The middle band is worth 4 points, then 3, then 2. The psychic scores the average of everyone’s points.</li>
-          <li>The psychic changes every round. Most points at the end wins.</li>
+          <li>Reveal! The middle band is worth 4 points, then 3, then 2. The creator scores the average of everyone’s points.</li>
+          <li>The creator changes every round. Most points at the end wins.</li>
         </ol>
       </details>
     </section>

@@ -28,6 +28,7 @@ export default function Room({ code, userId }: { code: string; userId: string | 
       {state.status === 'lobby' && <Lobby state={state} act={act} />}
       {state.status === 'playing' && <GameRound state={state} act={act} />}
       {state.status === 'finished' && <Results state={state} act={act} />}
+      <LeaveRoom act={act} playing={state.status === 'playing'} />
     </>
   );
 }
@@ -65,5 +66,41 @@ function JoinPrompt({ code, onJoined, started }: { code: string; onJoined: () =>
         Back home
       </button>
     </form>
+  );
+}
+
+/** At the bottom of every room screen; asks first. */
+function LeaveRoom({ act, playing }: { act: (fn: string, args?: Record<string, unknown>) => Promise<void>; playing: boolean }) {
+  const [confirm, setConfirm] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const leave = async () => {
+    setBusy(true);
+    try {
+      await act('ti_leave_room');
+    } catch {
+      // leave anyway
+    }
+    goHome();
+  };
+  return (
+    <footer className="room-footer">
+      {confirm ? (
+        <div className="leave-confirm">
+          <span>{playing ? 'Leave the game? You’ll drop out of the scores.' : 'Leave this room?'}</span>
+          <div>
+            <button className="btn" onClick={() => setConfirm(false)} disabled={busy}>
+              Stay
+            </button>
+            <button className="btn btn-primary" onClick={leave} disabled={busy}>
+              {busy ? 'Leaving…' : 'Leave'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button className="btn btn-leave" onClick={() => setConfirm(true)}>
+          Leave room
+        </button>
+      )}
+    </footer>
   );
 }
