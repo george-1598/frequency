@@ -5,9 +5,7 @@ scale (like *Cold ⟷ Hot*), drags the needle to a secret spot, picks how precis
 it has to be, and writes a clue (or rolls 🎲 for a suggestion). Everyone else
 drags their needle to where they think the clue sits. Closest wins the most points.
 
-**Play:** https://george-1598.github.io/tuned-in/
-
-(The repo and web address still say `tuned-in`, the game's working title.)
+**Play:** https://george-1598.github.io/frequency/
 
 - Rooms with a 5-letter code or share link; 2–12 players, no accounts.
 - Live on every phone (Supabase Realtime); the server keeps the target and the
