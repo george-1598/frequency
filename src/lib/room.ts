@@ -29,6 +29,7 @@ export interface Round {
 export interface RoomState {
   missing?: boolean;
   code: string;
+  name: string | null;
   joined: boolean;
   me: string;
   host: string;

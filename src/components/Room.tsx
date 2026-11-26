@@ -26,11 +26,11 @@ export default function Room({ code, userId }: { code: string; userId: string | 
   return (
     <>
       {error && <p className="error banner">{error}</p>}
-      {state.status !== 'lobby' && <RoomBar code={state.code} />}
+      {state.status !== 'lobby' && <RoomBar code={state.code} name={state.name} />}
       {state.status === 'lobby' && <Lobby state={state} act={act} />}
       {state.status === 'playing' && <GameRound state={state} act={act} />}
       {state.status === 'finished' && <Results state={state} act={act} />}
-      <LeaveRoom act={act} playing={state.status === 'playing'} />
+      <LeaveRoom act={act} playing={state.status === 'playing'} isHost={state.host === state.me} />
     </>
   );
 }
@@ -72,8 +72,9 @@ function JoinPrompt({ code, onJoined, started }: { code: string; onJoined: () =>
 }
 
 /** At the bottom of every room screen; asks first. */
-function LeaveRoom({ act, playing }: { act: (fn: string, args?: Record<string, unknown>) => Promise<void>; playing: boolean }) {
+function LeaveRoom({ act, playing, isHost }: { act: (fn: string, args?: Record<string, unknown>) => Promise<void>; playing: boolean; isHost: boolean }) {
   const [confirm, setConfirm] = useState(false);
+  const [ending, setEnding] = useState(false);
   const [busy, setBusy] = useState(false);
   const leave = async () => {
     setBusy(true);
@@ -86,7 +87,25 @@ function LeaveRoom({ act, playing }: { act: (fn: string, args?: Record<string, u
   };
   return (
     <footer className="room-footer">
-      {confirm ? (
+      {ending ? (
+        <div className="leave-confirm">
+          <span>End the game for everyone and show the final scores?</span>
+          <div>
+            <button className="btn" onClick={() => setEnding(false)}>
+              Keep playing
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={async () => {
+                setEnding(false);
+                await act('ti_end_game').catch(() => undefined);
+              }}
+            >
+              End game
+            </button>
+          </div>
+        </div>
+      ) : confirm ? (
         <div className="leave-confirm">
           <span>{playing ? 'Leave the game? You’ll drop out of the scores.' : 'Leave this room?'}</span>
           <div>
@@ -99,9 +118,16 @@ function LeaveRoom({ act, playing }: { act: (fn: string, args?: Record<string, u
           </div>
         </div>
       ) : (
-        <button className="btn btn-leave" onClick={() => setConfirm(true)}>
-          Leave room
-        </button>
+        <div className="footer-actions">
+          {playing && isHost && (
+            <button className="btn btn-leave" onClick={() => setEnding(true)}>
+              End game
+            </button>
+          )}
+          <button className="btn btn-leave" onClick={() => setConfirm(true)}>
+            Leave room
+          </button>
+        </div>
       )}
     </footer>
   );

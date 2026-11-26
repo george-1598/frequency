@@ -3,6 +3,7 @@ import { seatColor, type RoomState } from '../lib/room';
 import Dial from './Dial';
 import { Avatar } from './Lobby';
 import { EXAMPLES } from '../lib/examples';
+import ShareButton from './ShareButton';
 
 type Act = (fn: string, args?: Record<string, unknown>) => Promise<void>;
 
@@ -41,6 +42,15 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
         </span>
       </div>
 
+      {state.players.length > 1 && state.round > state.rounds_total - state.players.length && (
+        <div className="more-rounds">
+          <span>{state.round >= state.rounds_total ? 'This is the last round.' : 'Last round for some players.'}</span>
+          <button className="btn btn-small" onClick={() => run('ti_add_round')}>
+            ➕ One more round for everyone
+          </button>
+        </div>
+      )}
+
       {r.phase === 'clue' &&
         (isPsychic ? (
           <PsychicClue state={state} run={run} />
@@ -64,11 +74,20 @@ export default function GameRound({ state, act }: { state: RoomState; act: Act }
           {isPsychic ? (
             <div className="card">
               <Dial value={r.target ?? 50} showMain={false} target={r.target != null ? { center: r.target, tol } : null} left={r.left} right={r.right} label="The secret spot" />
-              <p className="muted center-text">Only you can see the target. Waiting for {waitingFor.map((p) => p.name).join(', ') || 'everyone'}…</p>
+              {guessers.length === 0 ? (
+                <div className="alone">
+                  <p>Nobody else is here yet. Invite friends: they can guess this round as soon as they join.</p>
+                  <ShareButton code={state.code} name={state.name} />
+                </div>
+              ) : (
+                <p className="muted center-text">Only you can see the target. Waiting for {waitingFor.map((p) => p.name).join(', ') || 'everyone'}…</p>
+              )}
               <LockedList guessers={guessers} locked={lockedIds} />
-              <button className="link" onClick={() => run('ti_force_reveal')}>
-                Reveal now
-              </button>
+              {guessers.length > 0 && (
+                <button className="link" onClick={() => run('ti_force_reveal')}>
+                  Reveal now
+                </button>
+              )}
             </div>
           ) : lockedIds.has(state.me) ? (
             <div className="card">

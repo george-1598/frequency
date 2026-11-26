@@ -9,6 +9,8 @@ import { LogoMark } from './Logo';
 export default function Home({ ready }: { ready: boolean }) {
   const [name, setName] = useState(savedName);
   const [code, setCode] = useState('');
+  const [roomName, setRoomName] = useState('');
+  const [rounds, setRounds] = useState(2);
   const [busy, setBusy] = useState<'create' | 'join' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [demo, setDemo] = useState(68);
@@ -20,7 +22,10 @@ export default function Home({ ready }: { ready: boolean }) {
     setError(null);
     saveName(name);
     try {
-      const room = kind === 'create' ? await call<string>('ti_create_room', { p_name: name }) : await call<string>('ti_join_room', { p_code: code, p_name: name });
+      const room =
+        kind === 'create'
+          ? await call<string>('ti_create_room', { p_name: name, p_room_name: roomName, p_rounds_per_player: rounds })
+          : await call<string>('ti_join_room', { p_code: code, p_name: name });
       goToRoom(room);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -44,9 +49,24 @@ export default function Home({ ready }: { ready: boolean }) {
           <span>Your name</span>
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={24} placeholder="e.g. Ana" autoComplete="nickname" />
         </label>
+        <label>
+          <span>Room name (optional)</span>
+          <input value={roomName} onChange={(e) => setRoomName(e.target.value)} maxLength={40} placeholder="Leave empty for a random name" />
+        </label>
+        <div className="setting">
+          <span>Rounds as creator, each</span>
+          <div className="seg">
+            {[1, 2, 3].map((n) => (
+              <button key={n} type="button" aria-pressed={rounds === n} onClick={() => setRounds(n)}>
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
         <button className="btn btn-primary" onClick={() => run('create')} disabled={!ready || busy !== null}>
-          {busy === 'create' ? 'Creating…' : 'Create a room'}
+          {busy === 'create' ? 'Starting…' : 'Create room & start'}
         </button>
+        <small className="muted center-text">You’ll be the first creator. Share the link and friends can join at any time.</small>
         <div className="or">or join one</div>
         <form className="join-row" onSubmit={(e) => run('join', e)}>
           <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} maxLength={5} placeholder="CODE" aria-label="Room code" className="code-input" />

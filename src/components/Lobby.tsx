@@ -1,13 +1,8 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import ShareButton from './ShareButton';
 import { seatColor, type RoomState } from '../lib/room';
 
 type Act = (fn: string, args?: Record<string, unknown>) => Promise<void>;
-const PRECISION = [
-  { v: 10, label: 'Easy' },
-  { v: 7, label: 'Normal' },
-  { v: 4, label: 'Hard' },
-];
 
 export function Avatar({ name, seat, size = 34 }: { name: string; seat: number; size?: number }) {
   return (
@@ -21,8 +16,6 @@ export function Avatar({ name, seat, size = 34 }: { name: string; seat: number; 
 export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
   const isHost = state.host === state.me;
   const [error, setError] = useState<string | null>(null);
-  const [left, setLeft] = useState('');
-  const [right, setRight] = useState('');
   const run = async (fn: string, args?: Record<string, unknown>) => {
     setError(null);
     try {
@@ -30,12 +23,6 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong');
     }
-  };
-  const addCard = async (e: FormEvent) => {
-    e.preventDefault();
-    await run('ti_add_card', { p_left: left, p_right: right });
-    setLeft('');
-    setRight('');
   };
   const rounds = state.players.length * state.rounds_per_player;
 
@@ -80,50 +67,9 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
             ))}
           </div>
         </div>
-        <div className="setting">
-          <span>Starting target size</span>
-          <div className="seg">
-            {PRECISION.map((p) => (
-              <button key={p.v} aria-pressed={state.precision === p.v} disabled={!isHost} onClick={() => run('ti_update_settings', { p_rounds_per_player: state.rounds_per_player, p_precision: p.v })}>
-                {p.label}
-              </button>
-            ))}
-          </div>
-        </div>
         <p className="muted">
-          {rounds} rounds in total. Each creator can still change the target size for their round.{!isHost && ' The host chooses the settings.'}
+          {rounds} rounds in total.{!isHost && ' The host chooses the settings.'}
         </p>
-      </div>
-
-      <div className="card">
-        <h2>
-          Your own scales <small>optional</small>
-        </h2>
-        <p className="muted">Add scales only your group would get. They’re mixed into the deck of 100.</p>
-        <form className="card-form" onSubmit={addCard}>
-          <input value={left} onChange={(e) => setLeft(e.target.value)} maxLength={40} placeholder="Left, e.g. Never" aria-label="Left end" />
-          <span>⟷</span>
-          <input value={right} onChange={(e) => setRight(e.target.value)} maxLength={40} placeholder="Right, e.g. Always" aria-label="Right end" />
-          <button className="btn" disabled={!left.trim() || !right.trim()}>
-            Add
-          </button>
-        </form>
-        {state.cards.length > 0 && (
-          <ul className="custom-cards">
-            {state.cards.map((c) => (
-              <li key={c.id}>
-                <span>
-                  {c.left} ⟷ {c.right}
-                </span>
-                {(c.mine || isHost) && (
-                  <button className="link" onClick={() => run('ti_remove_card', { p_id: c.id })} aria-label="Remove">
-                    ✕
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
 
       {error && <p className="error">{error}</p>}
