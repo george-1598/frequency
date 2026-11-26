@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { roomLink } from '../lib/route';
+import ShareButton from './ShareButton';
 import { seatColor, type RoomState } from '../lib/room';
 
 type Act = (fn: string, args?: Record<string, unknown>) => Promise<void>;
@@ -20,7 +20,6 @@ export function Avatar({ name, seat, size = 34 }: { name: string; seat: number; 
 /** Waiting room: share the code, see who's here, settings and custom scales. */
 export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
   const isHost = state.host === state.me;
-  const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [left, setLeft] = useState('');
   const [right, setRight] = useState('');
@@ -30,21 +29,6 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
       await act(fn, args);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong');
-    }
-  };
-  const share = async () => {
-    const url = roomLink(state.code);
-    try {
-      if (navigator.share) return await navigator.share({ title: 'Frequency', text: `Join my Frequency game! Room code: ${state.code}`, url });
-    } catch {
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setError('Couldn’t copy the link; share the code instead.');
     }
   };
   const addCard = async (e: FormEvent) => {
@@ -60,9 +44,8 @@ export default function Lobby({ state, act }: { state: RoomState; act: Act }) {
       <div className="card room-code">
         <span className="kicker">Room code</span>
         <strong className="code">{state.code}</strong>
-        <button className="btn" onClick={share}>
-          {copied ? 'Link copied ✓' : '📤 Invite friends'}
-        </button>
+        <ShareButton code={state.code} />
+        <span className="muted">Friends can join any time, even mid-game.</span>
       </div>
 
       <div className="card">

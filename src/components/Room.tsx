@@ -5,6 +5,7 @@ import { goHome } from '../lib/route';
 import Lobby from './Lobby';
 import GameRound from './GameRound';
 import Results from './Results';
+import { RoomBar } from './ShareButton';
 
 /** A room: join prompt, lobby, the current round, or the results. */
 export default function Room({ code, userId }: { code: string; userId: string | null }) {
@@ -25,6 +26,7 @@ export default function Room({ code, userId }: { code: string; userId: string | 
   return (
     <>
       {error && <p className="error banner">{error}</p>}
+      {state.status !== 'lobby' && <RoomBar code={state.code} />}
       {state.status === 'lobby' && <Lobby state={state} act={act} />}
       {state.status === 'playing' && <GameRound state={state} act={act} />}
       {state.status === 'finished' && <Results state={state} act={act} />}
@@ -53,7 +55,7 @@ function JoinPrompt({ code, onJoined, started }: { code: string; onJoined: () =>
   return (
     <form className="card home-form" onSubmit={join}>
       <h2>Join room {code}</h2>
-      {started && <p className="muted">A game is already going: you’ll join in from the next rounds.</p>}
+      {started && <p className="muted">A game is already going: jump straight in, guess this round, and you’ll get your own turns as creator too.</p>}
       <label>
         <span>Your name</span>
         <input value={name} onChange={(e) => setName(e.target.value)} maxLength={24} placeholder="e.g. Ana" autoFocus />

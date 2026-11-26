@@ -3,6 +3,9 @@ import { useRef, type KeyboardEvent, type PointerEvent } from 'react';
 const CX = 100;
 const CY = 100;
 const R = 92;
+// Room above the arc for the players' initials.
+const VB_TOP = -10;
+const VB_H = 122;
 const clamp = (v: number) => Math.max(0, Math.min(100, v));
 /** 0 = far left, 100 = far right, along the top of the semicircle. */
 const angleOf = (v: number) => Math.PI * (1 - clamp(v) / 100);
@@ -27,6 +30,20 @@ export interface Needle {
   value: number;
   color: string;
   label?: string;
+}
+
+/** Group labelled needles within 4 points of each other into one label. */
+function labelGroups(needles: Needle[]): { value: number; label: string }[] {
+  const sorted = needles.filter((n) => n.label).sort((a, b) => a.value - b.value);
+  const groups: { values: number[]; labels: string[] }[] = [];
+  for (const n of sorted) {
+    const last = groups[groups.length - 1];
+    if (last && n.value - last.values[last.values.length - 1] < 4) {
+      last.values.push(n.value);
+      last.labels.push(n.label!);
+    } else groups.push({ values: [n.value], labels: [n.label!] });
+  }
+  return groups.map((g) => ({ value: g.values.reduce((a, b) => a + b, 0) / g.values.length, label: g.labels.join('·') }));
 }
 
 /** A needle with a pointy arrow tip. */
@@ -75,7 +92,7 @@ export default function Dial({
   const fromPointer = (e: PointerEvent) => {
     const box = ref.current!.getBoundingClientRect();
     const x = ((e.clientX - box.left) / box.width) * 200 - CX;
-    const y = CY - ((e.clientY - box.top) / box.height) * 112;
+    const y = CY - (VB_TOP + ((e.clientY - box.top) / box.height) * VB_H);
     const a = Math.atan2(Math.max(y, 0), x);
     onChange?.(Math.round(clamp(100 - (a / Math.PI) * 100) * 2) / 2);
   };
@@ -89,7 +106,7 @@ export default function Dial({
     <div className="dial">
       <svg
         ref={ref}
-        viewBox="0 0 200 112"
+        viewBox={`0 ${VB_TOP} 200 ${VB_H}`}
         className={onChange ? 'dial-svg is-live' : 'dial-svg'}
         role={onChange ? 'slider' : 'img'}
         aria-label={label}
@@ -110,17 +127,16 @@ export default function Dial({
       >
         <path d={`M ${CX - R} ${CY} A ${R} ${R} 0 0 1 ${CX + R} ${CY} Z`} fill="#F3EAD8" />
         {target && BANDS.map((b) => <path key={b.span} d={wedge(target.center - target.tol * b.span, target.center + target.tol * b.span)} fill={b.color} />)}
-        {needles.map((n, i) => {
-          const [lx, ly] = point(n.value, R + 2);
+        {needles.map((n, i) => (
+          <Arrow key={i} value={n.value} color={n.color} width={2.6} length={R - 8} />
+        ))}
+        {/* Initials above the needles; needles that land close together share one label ("B·C"). */}
+        {labelGroups(needles).map((g, i) => {
+          const [lx, ly] = point(g.value, R + 2);
           return (
-            <g key={i}>
-              <Arrow value={n.value} color={n.color} width={2.6} length={R - 8} />
-              {n.label && (
-                <text x={lx} y={ly - 2} fontSize="7.5" fontWeight="700" fill="#2b2420" textAnchor="middle" stroke="#fffdf8" strokeWidth="2.4" paintOrder="stroke">
-                  {n.label}
-                </text>
-              )}
-            </g>
+            <text key={i} x={lx} y={ly - 2} fontSize="7.5" fontWeight="700" fill="#2b2420" textAnchor="middle" stroke="#fffdf8" strokeWidth="2.4" paintOrder="stroke">
+              {g.label}
+            </text>
           );
         })}
         {showMain && <Arrow value={value} color="#C8102E" />}
